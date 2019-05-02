@@ -13,12 +13,6 @@ public class HammingDist
 	private String secondID;
 	private ArrayList<String> compareTo = new ArrayList<String>();
 	
-	// Holds stations that are certain Hamming Distance from given station
-	private String stationValueOne = "";
-	private String stationValueTwo = "";
-	private String stationValueThree = "";
-	private String stationValueFour = "";
-	
 	// Calculated Hamming Distances of all stations compared to given station
 	private ArrayList<Integer> hamCount = new ArrayList<Integer>();
 	

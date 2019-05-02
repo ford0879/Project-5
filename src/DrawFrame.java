@@ -5,14 +5,22 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
+import javax.swing.BoundedRangeModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 /**
@@ -42,6 +50,8 @@ public class DrawFrame extends JFrame
      * Holds all stationID names
      */
 	private List<String> allStationIDs = new ArrayList<String>();
+	
+	HashMap<String, Integer> stationIDSortMap = new HashMap<String, Integer>();
 	
 	//
 	//  PANELS
@@ -118,7 +128,7 @@ public class DrawFrame extends JFrame
     /**
      * Text box to show comparison of selection station with all station of selected Hamming Distance
      */
-	JTextField similarStations = new JTextField("");
+	JTextArea similarStations = new JTextArea(20,10);
 	/**
 	 * Shows station Hamming Distance compared to Distance 0
 	 */
@@ -159,6 +169,11 @@ public class DrawFrame extends JFrame
 	 * JLabel meant to fill empty columns
 	 */
 	JLabel emptyCol = new JLabel("");
+	/**
+	 * Scrollbar for list of stations
+	 */
+	JScrollPane scroll = new JScrollPane (similarStations, 
+			   JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 	
 	
 	/**
@@ -177,6 +192,7 @@ public class DrawFrame extends JFrame
 
 	    similarStations.setEditable(false);
 	    similarStations.setBackground(Color.WHITE);
+	    add(scroll);
 	    
 	    // Forbids user from typing where compared distances appear
 	    distance0.setEditable(false);
@@ -209,17 +225,38 @@ public class DrawFrame extends JFrame
 		}
         
         showStation.addActionListener((e) ->
-        		{
-        			String sameStations = showStationHammDist.similarStations(compareWith.getSelectedItem().toString(), 
-        					hammDistSelect.getValue());
-        			similarStations.setText(sameStations);
-        		}
+        	{
+        		String sameStations = showStationHammDist.similarStations(compareWith.getSelectedItem().toString(), 
+        				hammDistSelect.getValue());
+        		similarStations.setText(sameStations);
+        	}
         );
         
         // Takes user input and inserts new station into list of stations
         addStation.addActionListener((e) -> 
         	{
         		compareWith.addItem(addStationBox.getText());
+        		allStationIDs.add(addStationBox.getText());
+        		
+        		// Adds items to map to be sorted
+        		for (int index = 0; index < allStationIDs.size(); index++) 
+        		{
+        		      stationIDSortMap.put(allStationIDs.get(index), index + 1);
+        	    }
+        		
+        		// Sorts map
+        		Map<String,Integer> sorted = new TreeMap<>(stationIDSortMap);
+        		Collection<String> sortedKeys = sorted.keySet();
+        		ArrayList<String> sortedStationIDs = new ArrayList<String>(sortedKeys);
+        		
+        		// Prepares box for sorted station IDs
+        		compareWith.removeAllItems();
+        		
+        		// Adds newly sorted station IDs
+        		for(int index = 0; index < sortedStationIDs.size(); index++)
+        		{
+        			compareWith.addItem(sortedStationIDs.get(index));
+        		}
         	}
         );
         
@@ -240,7 +277,7 @@ public class DrawFrame extends JFrame
         panel1.add(hammDistSelected);
         panel1.add(hammDistSelect);
         panel1.add(showStation);
-        panel1.add(similarStations);
+        panel1.add(scroll);
 
         panel2.add(compareWithLabel);
         panel2.add(compareWith);
