@@ -13,6 +13,15 @@ public class HammingDist
 	private String secondID;
 	private ArrayList<String> compareTo = new ArrayList<String>();
 	
+	// Holds stations that are certain Hamming Distance from given station
+	private String stationValueOne = "";
+	private String stationValueTwo = "";
+	private String stationValueThree = "";
+	private String stationValueFour = "";
+	
+	// Calculated Hamming Distances of all stations compared to given station
+	private ArrayList<Integer> hamCount = new ArrayList<Integer>();
+	
 	public HammingDist()
 	{
     	// Attempt to read Mesonet file
@@ -80,9 +89,6 @@ public class HammingDist
     	char[] allStationIDs = str.substring(1, str.length()-1).replaceAll(" ", "").toCharArray();
     	char[] stationsID = stationID.toCharArray();
     	
-    	
-    	// Calculated Hamming Distances of all stations compared to given station
-    	ArrayList<Integer> hamCount = new ArrayList<Integer>();
     	
     	// Stores how many stations are Hamming Distance 1-4
     	int[] distance = new int[4];
@@ -192,29 +198,28 @@ public class HammingDist
     }
     
     /**
-     * Information about hemming distance of given stations
-     * 
-     * @return "The Hamming Distance of NRMN and NOWA: 3.
-     * 	Out of 119, for NRMN, number of nodes are: 0, 0, 23, 96 and
-     * for NOWA, number of nodes are: 0, 5, 16, 98 respectively."
-     * 
-     * nodes are how many stations are 1 distance, 2 distance, 3 distance, and 4 distance
+     * Compares given station to all stations and returns stations that have a Hamm Dist of given value
+     * @param compareWith
+     * @param value
+     * @return all stations with given value
      */
-    @Override
-    public String toString()
+    public String similarStations(String compareWith, int value)
     {
-        // Calculate Hemming Distance of given stations compared to all stations
-    	ArrayList<Integer> firstStatDistance = new ArrayList<Integer>();
-    	firstStatDistance.addAll(compareAllStationIDs(this.firstID));
+    	String sameStations = "";
+    	this.firstID = compareWith;
+    	
+    	for(int index = 0; index < compareTo.size(); ++index)
+    	{
+    		this.secondID = compareTo.get(index);
+    		int sameHammDist = compareBothStationIDs();
+    	
+    		if(sameHammDist == value)
+    		sameStations += secondID + "\n";
+    	}
 
-    	ArrayList<Integer> secondStatDistance = new ArrayList<Integer>();
-    	secondStatDistance.addAll(compareAllStationIDs(this.secondID));
-
-    	return String.format("The Hamming Distance of %s and %s: %d.\n"
-    			+ "Out of 119, for %s, number of nodes are: %d, %d, %d, %d and\n"
-    			+ "for %s, number of nodes are: %d, %d, %d, %d respectively.", 
-    			  this.firstID, this.secondID, compareBothStationIDs(),
-    			  this.firstID, firstStatDistance.get(0), firstStatDistance.get(1), firstStatDistance.get(2), firstStatDistance.get(3),
-    			  this.secondID, secondStatDistance.get(0), secondStatDistance.get(1), secondStatDistance.get(2), secondStatDistance.get(3));
+    	
+    	
+    	return sameStations;
     }
+    
 }

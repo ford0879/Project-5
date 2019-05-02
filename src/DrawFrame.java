@@ -208,6 +208,14 @@ public class DrawFrame extends JFrame
 			e.printStackTrace();
 		}
         
+        showStation.addActionListener((e) ->
+        		{
+        			String sameStations = showStationHammDist.similarStations(compareWith.getSelectedItem().toString(), 
+        					hammDistSelect.getValue());
+        			similarStations.setText(sameStations);
+        		}
+        );
+        
         // Takes user input and inserts new station into list of stations
         addStation.addActionListener((e) -> 
         	{
