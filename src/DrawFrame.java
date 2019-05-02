@@ -1,6 +1,11 @@
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.Point;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -28,6 +33,16 @@ public class DrawFrame extends JFrame
 	private static final int FRAME_WIDTH = 600;
 	private static final int FRAME_HEIGHT = 750;
 	
+	/**
+	 * Used for creating comparisons of station ID's
+	 */
+    HammingDist showStationHammDist = new HammingDist();
+    
+    /**
+     * Holds all stationID names
+     */
+	private List<String> allStationIDs = new ArrayList<String>();
+	
 	//
 	//  PANELS
 	//
@@ -41,7 +56,7 @@ public class DrawFrame extends JFrame
 	/** panel for Hamm Slider, Show Station, and Station box */
     JPanel panel1 = new JPanel(new GridLayout(4,0));
     /** panel for Compare with, Calculate HD, addStation, and distance display*/
-    JPanel panel2 = new JPanel(new GridLayout(8,1));
+    JPanel panel2 = new JPanel(new GridLayout(8,2));
     /** panel for Free Zone */
     JPanel panel3 = new JPanel();
     
@@ -129,7 +144,9 @@ public class DrawFrame extends JFrame
 	 */
 	JTextField addStationBox = new JTextField("");
 	
+	//
 	// MISCELLANEOUS FUNCTIONS
+	//
     /**
      * Slider for selecting Hamming Distance
      */
@@ -137,7 +154,11 @@ public class DrawFrame extends JFrame
 	/**
 	 * Dropdown box for what station is being compared
 	 */
-	JComboBox compareWith = new JComboBox();
+	JComboBox<Object> compareWith;
+	/**
+	 * JLabel meant to fill empty columns
+	 */
+	JLabel emptyCol = new JLabel("");
 	
 	
 	/**
@@ -149,7 +170,7 @@ public class DrawFrame extends JFrame
 		super(title);
 
 	    this.setSize(FRAME_WIDTH, FRAME_HEIGHT);
-	    this.setLayout(new GridLayout(2,2));
+	    this.setLayout(new GridLayout(1,0));
 
 	    // Forbids user from typing in desired Hamming Distance but shows selection from slider
 	    hammDistSelected.setEditable(false);
@@ -168,35 +189,72 @@ public class DrawFrame extends JFrame
 	    hammDistSelect.setMajorTickSpacing(1);
         hammDistSelect.setPaintTicks(true);
         hammDistSelect.setPaintLabels(true);
+        
+        // Updates what value is shown by the slider
+        hammDistSelect.addChangeListener((e) ->
+        {
+        	hammDistSelected.setText(String.valueOf(hammDistSelect.getValue()));
+        }
+        );
+        
+        
+    	// Attempt to read Mesonet file and fills compareWith dropbox
+        try
+        {
+			read("Mesonet.txt");
+		} 
+        catch (IOException e) 
+        {
+			e.printStackTrace();
+		}
+        
+        // Takes user input and inserts new station into list of stations
+        addStation.addActionListener((e) -> 
+        	{
+        		compareWith.addItem(addStationBox.getText());
+        	}
+        );
+        
+        // Checks selected station and compares Hamming Distance to all other stations
+        calculateHD.addActionListener((e) ->
+        {
+            ArrayList<Integer> stationDistances = showStationHammDist.compareAllStationIDs(compareWith.getSelectedItem().toString());
+            distance0.setText("1");
+            distance1.setText(stationDistances.get(0).toString());
+            distance2.setText(stationDistances.get(1).toString());
+            distance3.setText(stationDistances.get(2).toString());
+            distance4.setText(stationDistances.get(3).toString());
+        }
+        );
 	    
 	    // Adds components to sub-panels
-        panel1.add(showStation);
         panel1.add(hammDistLabel);
         panel1.add(hammDistSelected);
         panel1.add(hammDistSelect);
+        panel1.add(showStation);
         panel1.add(similarStations);
 
         panel2.add(compareWithLabel);
         panel2.add(compareWith);
         panel2.add(calculateHD);
-        panel2.add(distanceLabel0);
-        panel2.add(distanceLabel1);
-        panel2.add(distanceLabel2);
-        panel2.add(distanceLabel3);
-        panel2.add(distanceLabel4);
+        panel2.add(emptyCol);
         panel2.add(distance0);
+        panel2.add(distanceLabel0);
         panel2.add(distance1);
+        panel2.add(distanceLabel1);
         panel2.add(distance2);
+        panel2.add(distanceLabel2);
         panel2.add(distance3);
+        panel2.add(distanceLabel3);
         panel2.add(distance4);
+        panel2.add(distanceLabel4);
         panel2.add(addStation);
         panel2.add(addStationBox);
         
         // Adds sub-panels to main panel
         panel0.add(panel1);
         panel0.add(panel2);
-        panel0.add(panel3);
-        
+       // panel0.add(panel3);
 
         
         // Adds main panel to frame
@@ -205,4 +263,30 @@ public class DrawFrame extends JFrame
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
 	}
+	
+	/**
+     * Reads information from Mesonet.txt and assigns station IDs split from file into array.
+     * The first 3 lines of Mesonet.txt are skipped.
+     * @param filename
+     * @throws IOException
+     */
+    public void read(String filename) throws IOException
+    {
+        // Use a buffered Reader on the file:
+        BufferedReader br = new BufferedReader(new FileReader(filename));
+        String strg = br.readLine();
+        
+        
+        // Splits first column of file to be used for Hamming Distance calculation
+        while (strg != null)
+        {
+        	allStationIDs.add(strg);
+        	strg = br.readLine();
+        }
+
+        String[] stationNames = allStationIDs.toArray(new String[]{});
+        compareWith = new JComboBox<Object>(stationNames);
+        
+        br.close();
+    }
 }

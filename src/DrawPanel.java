@@ -9,14 +9,20 @@ public class DrawPanel extends JPanel implements MouseListener
 	 * Makes eclipse happy
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	/**
+	 * Height and Width of the main panel.
+	 */
+	private static final int PANEL_WIDTH = 600;
+	private static final int PANEL_HEIGHT = 750;
 
 	/**
 	 * Constructor for Panel
 	 */
 	public DrawPanel()
 	{
-		this.setPreferredSize(new Dimension(200,500));
-		
+		this.setPreferredSize(new Dimension(PANEL_WIDTH,PANEL_HEIGHT));
+		this.addMouseListener(this);
 	}
 	
 	
