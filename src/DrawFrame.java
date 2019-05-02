@@ -1,6 +1,5 @@
 import java.awt.Color;
 import java.awt.GridLayout;
-import java.awt.Point;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -10,14 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import javax.swing.BoundedRangeModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextArea;
@@ -62,13 +58,11 @@ public class DrawFrame extends JFrame
 	 */
 	DrawPanel mainPanel = new DrawPanel();
 	/** panel to hold all panels */
-    JPanel panel0 = new JPanel(new GridLayout(2,2));
+    JPanel panel0 = new JPanel(new GridLayout(3,2));
 	/** panel for Hamm Slider, Show Station, and Station box */
     JPanel panel1 = new JPanel(new GridLayout(4,0));
     /** panel for Compare with, Calculate HD, addStation, and distance display*/
     JPanel panel2 = new JPanel(new GridLayout(8,2));
-    /** panel for Free Zone */
-    JPanel panel3 = new JPanel();
     
     //
     // BUTTONS
@@ -153,6 +147,21 @@ public class DrawFrame extends JFrame
 	 * Text box where user adds station to be compared
 	 */
 	JTextField addStationBox = new JTextField("");
+	
+	//
+	// EXTRA FUNCTION : REMOVE A STATION
+	//
+    /** panel for Free Zone */
+    JPanel panel3 = new JPanel(new GridLayout(1,0));  
+    /**
+     * Button for removing a station
+     */
+    JButton removeStation = new JButton("Remove Station");
+    /**
+     * Text box to type in what station to remove
+     */
+    JTextField removeStationBox = new JTextField("");
+    
 	
 	//
 	// MISCELLANEOUS FUNCTIONS
@@ -271,6 +280,13 @@ public class DrawFrame extends JFrame
             distance4.setText(stationDistances.get(3).toString());
         }
         );
+        
+        // Searches station ID list and removes station with typed in name
+        removeStation.addActionListener((e) ->
+        {
+        	compareWith.removeItem(addStationBox.getText());
+        }
+        );
 	    
 	    // Adds components to sub-panels
         panel1.add(hammDistLabel);
@@ -296,10 +312,14 @@ public class DrawFrame extends JFrame
         panel2.add(addStation);
         panel2.add(addStationBox);
         
+        panel3.add(removeStation);
+        panel3.add(removeStationBox);
+        
+        
         // Adds sub-panels to main panel
         panel0.add(panel1);
         panel0.add(panel2);
-       // panel0.add(panel3);
+        panel0.add(panel3);
 
         
         // Adds main panel to frame
@@ -334,4 +354,5 @@ public class DrawFrame extends JFrame
         
         br.close();
     }
+
 }
